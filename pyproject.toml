@@ -34,6 +34,7 @@ python-implementations = [ "CPython",]
 platforms = [ "Windows", "macOS", "Linux",]
 license-key = "BSD-3-Clause"
 package = "gunshotmatch_method_writer"
+additional-files = [ "include gunshotmatch_method_writer/_pycode/README.md",]
 
 [tool.mypy]
 python_version = "3.8"

@@ -54,3 +54,6 @@ github_ci_requirements:
 
 tox_unmanaged:
  - pytest
+
+manifest_additional:
+ - include gunshotmatch_method_writer/_pycode/README.md
