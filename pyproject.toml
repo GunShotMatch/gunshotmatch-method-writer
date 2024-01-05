@@ -32,7 +32,7 @@ base-classifiers = [
 python-versions = [ "3.8", "3.9", "3.10", "3.11", "3.12",]
 python-implementations = [ "CPython",]
 platforms = [ "Windows", "macOS", "Linux",]
-license-key = "MIT"
+license-key = "BSD-3-Clause"
 package = "gunshotmatch_method_writer"
 
 [tool.mypy]
@@ -52,6 +52,9 @@ order = 10
 [tool.dependency-dash."tests/requirements.txt"]
 order = 20
 include = false
+
+[tool.dep_checker.name_mapping]
+attrs = "attr"
 
 [tool.snippet-fmt.languages.python]
 reformat = true

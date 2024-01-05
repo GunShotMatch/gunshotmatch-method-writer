@@ -7,27 +7,145 @@ Method writer for GunShotMatch.
 #
 #  Copyright © 2024 Dominic Davis-Foster <dominic@davis-foster.co.uk>
 #
-#  Permission is hereby granted, free of charge, to any person obtaining a copy
-#  of this software and associated documentation files (the "Software"), to deal
-#  in the Software without restriction, including without limitation the rights
-#  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-#  copies of the Software, and to permit persons to whom the Software is
-#  furnished to do so, subject to the following conditions:
+#  Redistribution and use in source and binary forms, with or without modification,
+#  are permitted provided that the following conditions are met:
+
+#     * Redistributions of source code must retain the above copyright notice,
+#       this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright notice,
+#       this list of conditions and the following disclaimer in the documentation
+#       and/or other materials provided with the distribution.
+
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+#  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+#  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+#  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER
+#  OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+#  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+#  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+#  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+#  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+#  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+#  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-#  The above copyright notice and this permission notice shall be included in all
-#  copies or substantial portions of the Software.
-#
-#  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-#  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-#  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-#  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-#  DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-#  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
-#  OR OTHER DEALINGS IN THE SOFTWARE.
-#
+
+# stdlib
+import functools
+from collections import defaultdict
+from types import MappingProxyType
+from typing import Dict, Mapping
+
+# 3rd party
+import attr
+import tomli_w
+from domdf_python_tools.stringlist import StringList
+from libgunshotmatch.method import MethodBase
+
+# this package
+from gunshotmatch_method_writer._pycode import ModuleAnalyzer
+
+__all__ = ("default_method_toml", "get_module_attrib_docstrings")
 
 __author__: str = "Dominic Davis-Foster"
 __copyright__: str = "2024 Dominic Davis-Foster"
-__license__: str = "MIT License"
+__license__: str = "2-Clause BSD License"
 __version__: str = "0.0.0"
 __email__: str = "dominic@davis-foster.co.uk"
+
+
+@functools.lru_cache()
+def get_module_attrib_docstrings(module_name: str) -> Mapping[str, Mapping[str, str]]:
+	"""
+	Returns a mapping of classes in the given module to their attributes and their docstrings.
+
+	:param module_name:
+	"""
+
+	# TODO: copy and slim down Sphinx's code.
+	ma = ModuleAnalyzer.for_module(module_name)
+	ma.analyze()
+
+	class_attrib_docstrings: Dict[str, Dict[str, str]] = defaultdict(dict)
+	for attribute_path, docstring in ma.attr_docs.items():
+		class_name, attr_name = attribute_path
+		formatted_docstring = '\n'.join([
+				line for line in docstring if line and not line.lstrip().startswith("..")
+				]).strip().replace('`', '')
+		class_attrib_docstrings[class_name][attr_name] = formatted_docstring
+
+	return MappingProxyType(dict(class_attrib_docstrings))
+
+
+def default_method_toml(method: MethodBase) -> str:
+	"""
+	Generate TOML output for the (default state of) the given method.
+
+	Default values are commented out.
+	All properties are accompanied by a short explanatory comment/
+
+	:param method:
+	"""
+
+	output = StringList()
+	output.indent_type = "# "
+
+	defaults = {}
+
+	method_class = method.__class__
+	method_module = method_class.__module__
+
+	try:
+		docstrings = get_module_attrib_docstrings(method_module)[method_class.__name__]
+	except Exception:
+		docstrings = {}
+
+	for attrib in method_class.__attrs_attrs__:  # type: ignore[attr-defined]
+		if isinstance(attrib.default, attr.Factory):  # type: ignore[arg-type]
+			default = attrib.default.factory()
+		else:
+			default = attrib.default
+		defaults[attrib.name] = default
+
+	# MethodBase is an ABC but not an attrs class.
+	as_dict = attr.asdict(method, recurse=False)  # type: ignore[arg-type]
+	for k, v in list(as_dict.items()):
+
+		output.blankline()
+		docstring_lines = docstrings[k].splitlines()
+
+		if isinstance(v, MethodBase):
+
+			output.blankline()
+			output.append("# ------------------------------")
+			output.append(tomli_w.dumps({k: {}}).strip() + f" # {docstring_lines[0]}")
+			with output.with_indent("### ", 1):
+				output.extend(docstring_lines[1:])
+
+			# with output.with_indent("### ", 1):
+			# 	output.append(docstrings[k])
+			# output.append(tomli_w.dumps({k: {}}).strip())
+			# output.append("###")
+			output.append(default_method_toml(v))
+		else:
+
+			with output.with_indent_size(1):
+				output.extend(docstring_lines)
+
+			if v is None:
+				output.append(f"# {k} = ")
+				continue
+
+			if v == defaults[k]:
+				output.indent_size = 1
+
+			if isinstance(v, (set, tuple)):
+				v = list(v)
+
+			if isinstance(v, list) and len(v) < 5:
+				output.append(f"{k} = {v!r}")
+			else:
+				output.append(tomli_w.dumps({k: v}).strip())
+
+			output.indent_size = 0
+
+	return str(output)

@@ -7,7 +7,7 @@ email: 'dominic@davis-foster.co.uk'
 username: "GunShotMatch"
 assignee: "domdfcoding"
 version: '0.0.0'
-license: 'MIT'
+license: 'BSD-2-Clause'
 short_desc: 'Method writer for GunShotMatch.'
 
 enable_conda: false

@@ -1,0 +1,4 @@
+attrs>=23.2.0
+domdf-python-tools>=3.8.0.post2
+libgunshotmatch>=0.4.1
+tomli-w>=1.0.0

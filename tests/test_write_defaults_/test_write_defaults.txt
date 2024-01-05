@@ -1,0 +1,90 @@
+
+
+# ------------------------------
+[intensity_matrix] # Method used for constructing an intensity matrix from a datafile.
+
+# The range of masses to which the GC-MS data should be limited to.
+# crop_mass_range = [50, 500]
+
+
+# ------------------------------
+[savitzky_golay] # Whether to perform Savitzky-Golay smoothing.
+
+# Whether to perform Savitzky-Golay smoothing.
+# enable = true
+
+# The window size for the Savitzky-Golay filter.
+# Either a number of scans or a must be the form '<NUMBER>s' or '<NUMBER>m',
+# specifying a time in seconds or minutes, respectively.
+# window = 7
+
+# The degree of the fitting polynomial for the Savitzky-Golay filter.
+# degree = 2
+
+# Whether to perform Tophat baseline correction.
+# tophat = true
+
+# The structure size for Tophat baseline correction.
+# tophat_structure_size = "1.5m"
+
+
+# ------------------------------
+[peak_detection] # Method used for Biller-Biemann peak detection.
+
+# Number of scans over which to consider a maxima to be a peak.
+# points = 10
+
+# Number of scans to combine in a single peak from to compensate for spectra skewing.
+# scans = 1
+
+
+# ------------------------------
+[peak_filter] # Method used for peak filtering.
+
+# Whether to perform automatic noise filtering of the peak list.
+# noise_filter = true
+
+# The minimum number of ions that must have intensities above the noise floor, otherwise the peak is excluded.
+# noise_threshold = 2
+
+# Peaks whose base peak is at one of the listed masses (m/z) are excluded.
+# base_peak_filter = [73, 147]
+
+# Optional retention time range (in minutes) to filter the peak list to.
+# rt_range =
+
+
+# ------------------------------
+[alignment] # Method used for peak alignment.
+
+# Retention time tolerance parameter for pairwise alignments.
+# rt_modulation = 2.5
+
+# Gap parameter for pairwise alignments.
+# gap_penalty = 0.3
+
+# Minimum number of peaks required for the alignment position to survive filtering.
+# min_peaks = 1
+
+# Number of peaks (starting with the largest) to include in the output.
+# top_n_peaks = 80
+
+# Minimum area of peaks to include in the output.
+# min_peak_area = 0.0
+
+
+# ------------------------------
+[consolidate] # Method used for consolidation (finding most likely identity for aligned peaks).
+
+# List of glob-style matches for compound names.
+# Consolidated peaks matching any of these will be excluded.
+# name_filter = []
+
+# Minimum average match factor.
+# Consolidated peaks with an average match factor below this will be excluded.
+# min_match_factor = 600
+
+# Number of times the hit must appear across individual the aligned peaks.
+# Consolidated peaks where the most common hit appears fewer times than this will be excluded.
+# If set to -1 this number of repeats in the project are used.
+# min_appearances = -1
