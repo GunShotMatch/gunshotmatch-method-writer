@@ -32,9 +32,11 @@ use_parentheses = true
 remove_redundant_aliases = true
 default_section = "THIRDPARTY"
 known_third_party = [
+    "attrs",
     "coincidence",
     "coverage",
     "coverage_pyver_pragma",
+    "domdf_python_tools",
     "importlib_metadata",
     "libgunshotmatch",
     "pytest",
