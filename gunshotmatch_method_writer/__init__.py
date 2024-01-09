@@ -33,7 +33,7 @@ Method writer for GunShotMatch.
 import functools
 from collections import defaultdict
 from types import MappingProxyType
-from typing import Dict, Mapping
+from typing import Dict, List, Mapping
 
 # 3rd party
 import attr
@@ -42,15 +42,33 @@ from domdf_python_tools.stringlist import StringList
 from libgunshotmatch.method import MethodBase
 
 # this package
-from gunshotmatch_method_writer._pycode import ModuleAnalyzer
+from gunshotmatch_method_writer._pycode import get_attr_docs
 
-__all__ = ("default_method_toml", "get_module_attrib_docstrings")
+__all__ = (
+		"default_method_toml",
+		"get_module_attrib_docstrings",
+		"docstring_to_descriptions",
+		)
 
 __author__: str = "Dominic Davis-Foster"
 __copyright__: str = "2024 Dominic Davis-Foster"
 __license__: str = "2-Clause BSD License"
 __version__: str = "0.0.0"
 __email__: str = "dominic@davis-foster.co.uk"
+
+
+def docstring_to_description(docstring: List[str]) -> str:
+	"""
+	Remove Sphinx directives and backticks from the docstring to create the description.
+
+	:param docstring:
+	"""
+
+	docstring_lines = []
+	for line in docstring:
+		if line and not line.lstrip().startswith(".."):
+			docstring_lines.append(line)
+	return '\n'.join(docstring_lines).strip().replace('`', '')
 
 
 @functools.lru_cache()
@@ -61,17 +79,15 @@ def get_module_attrib_docstrings(module_name: str) -> Mapping[str, Mapping[str, 
 	:param module_name:
 	"""
 
-	# TODO: copy and slim down Sphinx's code.
-	ma = ModuleAnalyzer.for_module(module_name)
-	ma.analyze()
+	# ma = ModuleAnalyzer.for_module(module_name)
+	# ma.analyze()
+	attr_docs = get_attr_docs(module_name)
 
 	class_attrib_docstrings: Dict[str, Dict[str, str]] = defaultdict(dict)
-	for attribute_path, docstring in ma.attr_docs.items():
+	for attribute_path, docstring in attr_docs.items():
 		class_name, attr_name = attribute_path
-		formatted_docstring = '\n'.join([
-				line for line in docstring if line and not line.lstrip().startswith("..")
-				]).strip().replace('`', '')
-		class_attrib_docstrings[class_name][attr_name] = formatted_docstring
+		description = docstring_to_description(docstring)
+		class_attrib_docstrings[class_name][attr_name] = description
 
 	return MappingProxyType(dict(class_attrib_docstrings))
 
@@ -94,10 +110,7 @@ def default_method_toml(method: MethodBase) -> str:
 	method_class = method.__class__
 	method_module = method_class.__module__
 
-	try:
-		docstrings = get_module_attrib_docstrings(method_module)[method_class.__name__]
-	except Exception:
-		docstrings = {}
+	docstrings = get_module_attrib_docstrings(method_module)[method_class.__name__]
 
 	for attrib in method_class.__attrs_attrs__:  # type: ignore[attr-defined]
 		if isinstance(attrib.default, attr.Factory):  # type: ignore[arg-type]

@@ -4,68 +4,53 @@ Utilities parsing and analyzing Python code.
 
 # stdlib
 from importlib import import_module
-from typing import Any, Dict, List, Tuple
+from typing import Dict, List, Tuple
 
 # this package
 from .parser import Parser
 
-__all__ = ("ModuleAnalyzer", )
+__all__ = ["get_attr_docs", "get_module_source"]
 
 
-class ModuleAnalyzer:  # noqa: D101
-	attr_docs: Dict[Tuple[str, str], List[str]]
+def get_module_source(modname: str) -> Tuple[str, str]:
+	"""Try to find the source code for a module.
 
-	# cache for analyzer objects -- caches both by module and file name
-	cache: Dict[Tuple[str, str], Any] = {}
+	:returns: A tuple of ``filename`` and ``source``.
+	"""
 
-	@staticmethod
-	def get_module_source(modname: str) -> Tuple[str, str]:
-		"""Try to find the source code for a module.
+	mod = import_module(modname)
+	loader = getattr(mod, "__loader__", None)
 
-		Returns ('filename', 'source'). One of it can be None if
-		no filename or source found
-		"""
+	if loader and getattr(loader, "get_source", None):
+		source = loader.get_source(modname)
+		if source:
+			return getattr(mod, "__file__", "<string>"), source
 
-		mod = import_module(modname)
-		loader = getattr(mod, "__loader__", None)
+	raise ValueError("no source found for module %r" % modname)
 
-		if loader and getattr(loader, "get_source", None):
-			source = loader.get_source(modname)
-			if source:
-				return getattr(mod, "__file__", "<string>"), source
 
-		raise ValueError("no source found for module %r" % modname)
+def get_attr_docs(modname: str) -> Dict[Tuple[str, str], List[str]]:
+	"""
+	Extract class attribute docstrings for the given module name.
 
-	@classmethod
-	def for_module(cls, modname: str) -> "ModuleAnalyzer":  # noqa: D102
+	:param modname:
 
-		filename, source = cls.get_module_source(modname)
-		return cls(source, modname, filename or "<string>")
+	:returns: A mapping of (class name, attribute name) to attribute docstring.
+	"""
 
-	def __init__(self, source: str, modname: str, srcname: str) -> None:
-		self.srcname = srcname  # name of the source file
+	srcname, source = get_module_source(modname)
 
-		# cache the source code as well
-		self.code = source
+	try:
+		parser = Parser(source)
+		parser.parse()
 
-		self._analyzed = False
+		attr_docs: Dict[Tuple[str, str], List[str]] = {}
+		for (scope, comment) in parser.comments.items():
+			if comment:
+				attr_docs[scope] = comment.splitlines() + ['']
+			else:
+				attr_docs[scope] = ['']
 
-	def analyze(self) -> None:
-		"""Analyze the source code."""
-		if self._analyzed:
-			return
-
-		try:
-			parser = Parser(self.code)
-			parser.parse()
-
-			self.attr_docs = {}
-			for (scope, comment) in parser.comments.items():
-				if comment:
-					self.attr_docs[scope] = comment.splitlines() + ['']
-				else:
-					self.attr_docs[scope] = ['']
-
-			self._analyzed = True
-		except Exception as exc:
-			raise ValueError(f'parsing {self.srcname!r} failed: {exc!r}') from exc
+		return attr_docs
+	except Exception as exc:
+		raise ValueError(f'parsing {(srcname or "<string>")!r} failed: {exc!r}') from exc

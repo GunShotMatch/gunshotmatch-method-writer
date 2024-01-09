@@ -25,7 +25,6 @@ __all__ = [
 
 comment_re = re.compile('^\\s*#: ?(.*)\r?\n?$')
 indent_re = re.compile("^\\s*$")
-emptyline_re = re.compile("^\\s*(#.*)?$")
 
 
 def filter_whitespace(code: str) -> str:  # noqa: D103
