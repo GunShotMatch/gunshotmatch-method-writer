@@ -8,7 +8,7 @@
 
 
 # ------------------------------
-[savitzky_golay] # Whether to perform Savitzky-Golay smoothing.
+[savitzky_golay] # Settings for Savitzky-Golay smoothing.
 
 # Whether to perform Savitzky-Golay smoothing.
 # enable = true
@@ -64,6 +64,7 @@
 # gap_penalty = 0.3
 
 # Minimum number of peaks required for the alignment position to survive filtering.
+# If set to -1 the number of repeats in the project are used.
 # min_peaks = 1
 
 # Number of peaks (starting with the largest) to include in the output.
@@ -84,7 +85,7 @@
 # Consolidated peaks with an average match factor below this will be excluded.
 # min_match_factor = 600
 
-# Number of times the hit must appear across individual the aligned peaks.
+# Number of times the hit must appear across the individual aligned peaks.
 # Consolidated peaks where the most common hit appears fewer times than this will be excluded.
-# If set to -1 this number of repeats in the project are used.
+# If set to -1 the number of instances of the peak in the project are used.
 # min_appearances = -1
