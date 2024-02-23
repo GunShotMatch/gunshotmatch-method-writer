@@ -45,4 +45,4 @@ known_third_party = [
     "pytest_timeout",
     "tomli_w",
 ]
-known_first_party = "gunshotmatch_method_writer"
+known_first_party = [ "gunshotmatch_method_writer",]
