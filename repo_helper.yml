@@ -13,6 +13,8 @@ short_desc: 'Method writer for GunShotMatch.'
 enable_conda: false
 use_whey: true
 enable_docs: false
+mypy_version: 1.16
+python_deploy_version: 3.9
 
 python_versions:
  3.8:
