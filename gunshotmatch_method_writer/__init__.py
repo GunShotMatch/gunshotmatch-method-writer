@@ -92,14 +92,19 @@ def get_module_attrib_docstrings(module_name: str) -> Mapping[str, Mapping[str, 
 	return MappingProxyType(dict(class_attrib_docstrings))
 
 
-def default_method_toml(method: MethodBase) -> str:
+def default_method_toml(method: MethodBase, method_name: str = "method") -> str:
 	"""
 	Generate TOML output for the (default state of) the given method.
 
 	Default values are commented out.
-	All properties are accompanied by a short explanatory comment/
+	All properties are accompanied by a short explanatory comment.
 
 	:param method:
+	:param method_name: The name of the top-level table for this method.
+
+	:rtype:
+
+	.. versionchanged:: 0.2.0  Added ``method_name`` argument.
 	"""
 
 	output = StringList()
@@ -130,7 +135,9 @@ def default_method_toml(method: MethodBase) -> str:
 
 			output.blankline()
 			output.append("# ------------------------------")
-			output.append(tomli_w.dumps({k: {}}).strip() + f" # {docstring_lines[0]}")
+			output.append(
+					tomli_w.dumps({method_name: {k: {}}}).strip().replace('"', '') + f" # {docstring_lines[0]}",
+					)
 			with output.with_indent("### ", 1):
 				output.extend(docstring_lines[1:])
 
@@ -138,7 +145,7 @@ def default_method_toml(method: MethodBase) -> str:
 			# 	output.append(docstrings[k])
 			# output.append(tomli_w.dumps({k: {}}).strip())
 			# output.append("###")
-			output.append(default_method_toml(v))
+			output.append(default_method_toml(v, f"{method_name}.{k}"))
 		else:
 
 			with output.with_indent_size(1):
@@ -154,8 +161,11 @@ def default_method_toml(method: MethodBase) -> str:
 			if isinstance(v, (set, tuple)):
 				v = list(v)
 
-			if isinstance(v, list) and len(v) < 5:
-				output.append(f"{k} = {v!r}")
+			if isinstance(v, list) and not v:
+				output.append(f"{k} = [ ]")
+			elif isinstance(v, list) and len(v) < 5:
+				v_repr = repr(v)[1:-1]
+				output.append(f"{k} = [ {v_repr}, ]")
 			else:
 				output.append(tomli_w.dumps({k: v}).strip())
 

@@ -1,14 +1,14 @@
 
 
 # ------------------------------
-[intensity_matrix] # Method used for constructing an intensity matrix from a datafile.
+[method.intensity_matrix] # Method used for constructing an intensity matrix from a datafile.
 
 # The range of masses to which the GC-MS data should be limited to.
-# crop_mass_range = [50, 500]
+# crop_mass_range = [ 50, 500, ]
 
 
 # ------------------------------
-[savitzky_golay] # Settings for Savitzky-Golay smoothing.
+[method.intensity_matrix.savitzky_golay] # Settings for Savitzky-Golay smoothing.
 
 # Whether to perform Savitzky-Golay smoothing.
 # enable = true
@@ -29,7 +29,7 @@
 
 
 # ------------------------------
-[peak_detection] # Method used for Biller-Biemann peak detection.
+[method.peak_detection] # Method used for Biller-Biemann peak detection.
 
 # Number of scans over which to consider a maxima to be a peak.
 # points = 10
@@ -39,7 +39,7 @@
 
 
 # ------------------------------
-[peak_filter] # Method used for peak filtering.
+[method.peak_filter] # Method used for peak filtering.
 
 # Whether to perform automatic noise filtering of the peak list.
 # noise_filter = true
@@ -48,14 +48,14 @@
 # noise_threshold = 2
 
 # Peaks whose base peak is at one of the listed masses (m/z) are excluded.
-# base_peak_filter = [73, 147]
+# base_peak_filter = [ 73, 147, ]
 
 # Optional retention time range (in minutes) to filter the peak list to.
 # rt_range =
 
 
 # ------------------------------
-[alignment] # Method used for peak alignment.
+[method.alignment] # Method used for peak alignment.
 
 # Retention time tolerance parameter for pairwise alignments.
 # rt_modulation = 2.5
@@ -75,11 +75,11 @@
 
 
 # ------------------------------
-[consolidate] # Method used for consolidation (finding most likely identity for aligned peaks).
+[method.consolidate] # Method used for consolidation (finding most likely identity for aligned peaks).
 
 # List of glob-style matches for compound names.
 # Consolidated peaks matching any of these will be excluded.
-# name_filter = []
+# name_filter = [ ]
 
 # Minimum average match factor.
 # Consolidated peaks with an average match factor below this will be excluded.
