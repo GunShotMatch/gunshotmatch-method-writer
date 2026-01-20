@@ -38,8 +38,8 @@ from typing import Dict, List, Mapping
 # 3rd party
 import attr
 import tomli_w
+from dom_toml.config import Config as MethodBase
 from domdf_python_tools.stringlist import StringList
-from libgunshotmatch.method import MethodBase
 
 # this package
 from gunshotmatch_method_writer._pycode import get_attr_docs
@@ -117,7 +117,7 @@ def default_method_toml(method: MethodBase, method_name: str = "method") -> str:
 
 	docstrings = get_module_attrib_docstrings(method_module)[method_class.__name__]
 
-	for attrib in method_class.__attrs_attrs__:  # type: ignore[attr-defined]
+	for attrib in method_class.__attrs_attrs__:
 		if isinstance(attrib.default, attr.Factory):  # type: ignore[arg-type]
 			assert attrib.default is not None
 			default = attrib.default.factory()
@@ -125,8 +125,7 @@ def default_method_toml(method: MethodBase, method_name: str = "method") -> str:
 			default = attrib.default
 		defaults[attrib.name] = default
 
-	# MethodBase is an ABC but not an attrs class.
-	as_dict = attr.asdict(method, recurse=False)  # type: ignore[arg-type]
+	as_dict = attr.asdict(method, recurse=False)
 	for k, v in list(as_dict.items()):
 
 		output.blankline()
