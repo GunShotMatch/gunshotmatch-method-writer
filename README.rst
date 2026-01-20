@@ -89,11 +89,11 @@ gunshotmatch-method-writer
 	:target: https://github.com/GunShotMatch/gunshotmatch-method-writer/commit/master
 	:alt: GitHub last commit
 
-.. |maintained| image:: https://img.shields.io/maintenance/yes/2025
+.. |maintained| image:: https://img.shields.io/maintenance/yes/2026
 	:alt: Maintenance
 
 .. |pypi-downloads| image:: https://img.shields.io/pypi/dm/gunshotmatch-method-writer
-	:target: https://pypi.org/project/gunshotmatch-method-writer/
+	:target: https://pypistats.org/packages/gunshotmatch-method-writer
 	:alt: PyPI - Downloads
 
 .. end shields
