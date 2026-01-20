@@ -13,7 +13,10 @@ __all__ = ["get_attr_docs", "get_module_source"]
 
 
 def get_module_source(modname: str) -> Tuple[str, str]:
-	"""Try to find the source code for a module.
+	"""
+	Try to find the source code for a module.
+
+	:param modname:
 
 	:returns: A tuple of ``filename`` and ``source``.
 	"""

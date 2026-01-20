@@ -71,7 +71,7 @@ def docstring_to_description(docstring: List[str]) -> str:
 	return '\n'.join(docstring_lines).strip().replace('`', '')
 
 
-@functools.lru_cache()
+@functools.lru_cache
 def get_module_attrib_docstrings(module_name: str) -> Mapping[str, Mapping[str, str]]:
 	"""
 	Returns a mapping of classes in the given module to their attributes and their docstrings.
@@ -119,6 +119,7 @@ def default_method_toml(method: MethodBase, method_name: str = "method") -> str:
 
 	for attrib in method_class.__attrs_attrs__:  # type: ignore[attr-defined]
 		if isinstance(attrib.default, attr.Factory):  # type: ignore[arg-type]
+			assert attrib.default is not None
 			default = attrib.default.factory()
 		else:
 			default = attrib.default
@@ -135,9 +136,10 @@ def default_method_toml(method: MethodBase, method_name: str = "method") -> str:
 
 			output.blankline()
 			output.append("# ------------------------------")
-			output.append(
-					tomli_w.dumps({method_name: {k: {}}}).strip().replace('"', '') + f" # {docstring_lines[0]}",
-					)
+
+			heading_toml = tomli_w.dumps({method_name: {k: {}}}).strip().replace('"', '')
+			output.append(heading_toml + f" # {docstring_lines[0]}")
+
 			with output.with_indent("### ", 1):
 				output.extend(docstring_lines[1:])
 

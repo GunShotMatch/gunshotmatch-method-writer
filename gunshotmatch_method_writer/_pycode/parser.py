@@ -20,7 +20,7 @@ __all__ = [
 		"dedent_docstring",
 		"filter_whitespace",
 		"get_assign_targets",
-		"get_lvar_names"
+		"get_lvar_names",
 		]
 
 comment_re = re.compile('^\\s*#: ?(.*)\r?\n?$')
