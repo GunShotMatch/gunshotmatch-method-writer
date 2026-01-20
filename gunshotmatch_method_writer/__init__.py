@@ -53,7 +53,7 @@ __all__ = (
 __author__: str = "Dominic Davis-Foster"
 __copyright__: str = "2024 Dominic Davis-Foster"
 __license__: str = "2-Clause BSD License"
-__version__: str = "0.1.0"
+__version__: str = "0.2.0"
 __email__: str = "dominic@davis-foster.co.uk"
 
 

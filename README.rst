@@ -81,7 +81,7 @@ gunshotmatch-method-writer
 .. |language| image:: https://img.shields.io/github/languages/top/GunShotMatch/gunshotmatch-method-writer
 	:alt: GitHub top language
 
-.. |commits-since| image:: https://img.shields.io/github/commits-since/GunShotMatch/gunshotmatch-method-writer/v0.1.0
+.. |commits-since| image:: https://img.shields.io/github/commits-since/GunShotMatch/gunshotmatch-method-writer/v0.2.0
 	:target: https://github.com/GunShotMatch/gunshotmatch-method-writer/pulse
 	:alt: GitHub commits since tagged version
 
